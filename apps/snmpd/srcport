@@ -1,0 +1,4 @@
+snmpd.c:            uip_ipaddr_copy(&ripaddr, &UDP_IP_BUF->srcipaddr);
+snmpd.c:            rport = UDP_IP_BUF->srcport;
+snmpd.c:            uip_ipaddr_copy(&udpconn->ripaddr, &UDP_IP_BUF->srcipaddr);
+snmpd.c:            udpconn->rport = UDP_IP_BUF->srcport;

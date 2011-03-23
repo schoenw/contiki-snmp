@@ -708,7 +708,7 @@ lcd_text_sl(void)
         pos = 7;
     }
     else {
-        if (pos){
+        if (pos > 1){
             pos--;
         }
         else {
