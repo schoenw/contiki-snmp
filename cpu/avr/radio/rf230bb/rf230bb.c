@@ -1508,4 +1508,27 @@ pending_packet(void)
   if (pending) DEBUGFLOW('p');
   return pending;
 }
-/*---------------------------------------------------------------------------*/
+
+
+/*----------------------------------------------------------------------------*/
+/** \brief  This function will read the extended address used by the address
+ *          filter.
+ *
+ *  \note In this function a pointer is used to convey the 64-bit result, since
+ *        it is very inefficient to use the stack for this.
+ *
+ *  \return Extended Address, any 64-bit value.
+ */
+void
+radio_get_extended_address(uint8_t *extended_address)
+{
+    *extended_address++ = hal_register_read(RG_IEEE_ADDR_7);
+    *extended_address++ = hal_register_read(RG_IEEE_ADDR_6);
+    *extended_address++ = hal_register_read(RG_IEEE_ADDR_5);
+    *extended_address++ = hal_register_read(RG_IEEE_ADDR_4);
+    *extended_address++ = hal_register_read(RG_IEEE_ADDR_3);
+    *extended_address++ = hal_register_read(RG_IEEE_ADDR_2);
+    *extended_address++ = hal_register_read(RG_IEEE_ADDR_1);
+    *extended_address   = hal_register_read(RG_IEEE_ADDR_0);
+}
+

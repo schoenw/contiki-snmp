@@ -10,6 +10,7 @@
  * \author Adam Dunkels <adam@sics.se>
  * \author Julien Abeille <jabeille@cisco.com> (IPv6 related code)
  * \author Mathilde Durvy <mdurvy@cisco.com> (IPv6 related code)
+ * \author Anuj Sehgal <s.anuj@jacobs-university.de> (App Multicast Code)
  */
 /*
  * Copyright (c) 2001-2003, Adam Dunkels.
@@ -76,14 +77,13 @@
 #include "net/uip-icmp6.h"
 #include "net/uip-nd6.h"
 #include "net/uip-ds6.h"
+#include "net/uip-mcast6.h"
 
 #include <string.h>
-
 /*---------------------------------------------------------------------------*/
 /* For Debug, logging, statistics                                            */
 /*---------------------------------------------------------------------------*/
 
-#define DEBUG 0
 #if DEBUG
 #include <stdio.h>
 #define PRINTF(...) printf(__VA_ARGS__)
@@ -1398,16 +1398,35 @@ uip_process(u8_t flag)
        connection is bound to a remote port. Finally, if the
        connection is bound to a remote IP address, the source IP
        address of the packet is checked. */
+    PRINTF("Local  Port: %d\n", UIP_HTONS(uip_udp_conn->lport));
+    PRINTF("Dest   Port: %d\n", UIP_HTONS(UIP_UDP_BUF->destport));
+    PRINTF("Remote Port: %d\n", UIP_HTONS(uip_udp_conn->rport));
+    PRINTF("Source Port: %d\n", UIP_HTONS(UIP_UDP_BUF->srcport));
+    PRINT6ADDR(&UIP_IP_BUF->srcipaddr);
+    PRINT6ADDR(&uip_udp_conn->ripaddr);
+    PRINTF("\n");
     if(uip_udp_conn->lport != 0 &&
        UIP_UDP_BUF->destport == uip_udp_conn->lport &&
        (uip_udp_conn->rport == 0 ||
         UIP_UDP_BUF->srcport == uip_udp_conn->rport) &&
        (uip_is_addr_unspecified(&uip_udp_conn->ripaddr) ||
         uip_ipaddr_cmp(&UIP_IP_BUF->srcipaddr, &uip_udp_conn->ripaddr))) {
+      PRINTF("udp: matching connection found\n");
+      goto udp_found;
+    }
+    /* The destination IP address is checked against the list of
+       currently subscribed multicast groups. If they match, the
+       destination UDP port is checked against the local port to
+       establish if this connection is the one waiting to receive
+       packets. If true, the UDP packet is accepted.*/
+    if((uip_ipaddr_cmp(&UIP_IP_BUF->destipaddr,&uip_udp_conn->ripaddr) &&
+	uip_maddr_exists(uip_udp_conn->ripaddr)) &&
+        UIP_UDP_BUF->destport == uip_udp_conn->lport){
+      PRINTF("udp: matching connection found\n");
       goto udp_found;
     }
   }
-  PRINTF("udp: no matching connection found\n");
+  PRINTF("udp: NO matching connection found\n");
 
 #if UIP_UDP_SEND_UNREACH_NOPORT
   uip_icmp6_error_output(ICMP6_DST_UNREACH, ICMP6_DST_UNREACH_NOPORT, 0);

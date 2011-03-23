@@ -1,0 +1,3 @@
+snmpd_src = snmpd.c dispatcher.c msg-proc-v1.c msg-proc-v3.c usm.c cmd-responder.c mib.c ber.c utils.c logging.c snmpd-conf.c keytools.c md5.c aes_cfb.c $(MIB_INIT)
+
+
