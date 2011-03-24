@@ -16,6 +16,7 @@ PROCESS_NAME(raven_lcd_process);
 #define REPORT_PING_BEEP       (0xC1)
 #define REPORT_TEXT_MSG        (0xC2)
 #define REPORT_WAKE            (0xC3)
+#define REPORT_PLAY_MUSIC      (0xC4)
 
 /* Messages from the 3290p to the 1284p */
 #define SEND_TEMP              (0x80)
