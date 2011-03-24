@@ -19,6 +19,8 @@
 #define PROGMEM
 #endif
 
+#define AVR_SNMP 1
+
 /* SNMPv2 system group */
 static u8t ber_oid_system_sysDesc[] PROGMEM             = {0x2b, 0x06, 0x01, 0x02, 0x01, 0x01, 0x01, 0x00};
 static ptr_t oid_system_sysDesc PROGMEM                 = {ber_oid_system_sysDesc, 8};
@@ -64,8 +66,8 @@ static u8t ber_oid_ifXEntry[] PROGMEM                   = {0x2b, 0x06, 0x01, 0x0
 static ptr_t oid_ifXEntry PROGMEM                       = {ber_oid_ifXEntry, 9};
 
 /* entPhySensorEntry */
-static u8t ber_oid_entPhySensorEntry[] PROGMEM          = {0x2b, 0x06, 0x01, 0x02, 0x01, 0x63, 0x01, 0x01};
-static ptr_t oid_entPhySensorEntry PROGMEM              = {ber_oid_entPhySensorEntry, 8};
+static u8t ber_oid_entPhySensorEntry[] PROGMEM          = {0x2b, 0x06, 0x01, 0x02, 0x01, 0x63, 0x01, 0x01, 0x01};
+static ptr_t oid_entPhySensorEntry PROGMEM              = {ber_oid_entPhySensorEntry, 9};
 
 /* SNMPv2 snmpSet group */
 static u8t ber_oid_snmpSetSerialNo[] PROGMEM            = {0x2b, 0x06, 0x01, 0x06, 0x03, 0x01, 0x01, 0x06, 0x01, 0x00};
@@ -118,8 +120,8 @@ u8t sysORTableColumns[] = {sysORID, sysORDescr, sysORUpTime};
 static u8t ber_oid_mib2[]              = {0x2b, 0x06, 0x01, 0x06, 0x03, 0x01};
 static ptr_t oid_mib2                  = {ber_oid_mib2, 6};
 
-static u8t ber_oid_jacobs_raven[]      = {0x2b, 0x06, 0x01, 0x04, 0x01, 0x9b, 0x39, 0x01, 0x01};
-static ptr_t oid_jacobs_raven          = {ber_oid_jacobs_raven, 9};
+static u8t ber_oid_jacobs_raven[]      = {0x2b, 0x06, 0x01, 0x04, 0x01, 0x81, 0xf2, 0x06, 0x01, 0x01};
+static ptr_t oid_jacobs_raven          = {ber_oid_jacobs_raven, 10};
 
 s8t getOREntry(mib_object_t* object, u8t* oid, u8t len)
 {
@@ -702,7 +704,7 @@ s8t getEntPhySensorEntry(mib_object_t* object, u8t* oid, u8t len)
             break;
 
        case entPhySensorValueUpdateRate:
-            object->varbind.value_type = BER_TYPE_INTEGER;
+            object->varbind.value_type = BER_TYPE_UNSIGNED32;
             switch (oid_el2) {
                 case 1:
                     object->varbind.value.u_value = 0;
@@ -779,9 +781,9 @@ s8t mib_init()
     if (add_scalar(&oid_system_sysDesc, FLAG_ACCESS_READONLY, BER_TYPE_OCTET_STRING, CONTIKI_VERSION_STRING, 0, 0) == -1 ||
         add_scalar(&oid_system_sysObjectId, FLAG_ACCESS_READONLY, BER_TYPE_OID, &oid_jacobs_raven, 0, 0) == -1 ||
         add_scalar(&oid_system_sysUpTime, FLAG_ACCESS_READONLY, BER_TYPE_TIME_TICKS, 0, &getTimeTicks, 0) == -1 ||
-        add_scalar(&oid_system_sysContact, 0, BER_TYPE_OCTET_STRING, "<s.kuryla@jacobs-university.de>", 0, 0) == -1 ||
+        add_scalar(&oid_system_sysContact, 0, BER_TYPE_OCTET_STRING, "<admin@eecs.jacobs-university.de>", 0, 0) == -1 ||
         add_scalar(&oid_system_sysName, 0, BER_TYPE_OCTET_STRING, "jacobs-snmp-test", 0, 0) == -1 ||
-        add_scalar(&oid_system_sysLocation, 0, BER_TYPE_OCTET_STRING, "Research I, Room 86", 0, 0) == -1 ||
+        add_scalar(&oid_system_sysLocation, 0, BER_TYPE_OCTET_STRING, "Jacobs University Test Network", 0, 0) == -1 ||
         add_scalar(&oid_system_sysServices, FLAG_ACCESS_READONLY, BER_TYPE_INTEGER, &defaultServiceValue, 0, 0) == -1 ||
         add_scalar(&oid_system_sysORLastChange, FLAG_ACCESS_READONLY, BER_TYPE_TIME_TICKS, 0, 0, 0) == -1) {
         return -1;

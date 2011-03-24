@@ -50,7 +50,8 @@ clock_time_t systemStartTime;
 u32t getSysUpTime()
 {
     #if CONTIKI_TARGET_AVR_RAVEN
-        return seconds * 100;
+        return clock_seconds();
+	  //return seconds * 100;
     #else
         return (clock_time() - systemStartTime)/ 10;
     #endif
