@@ -555,7 +555,7 @@ s8t getIfXEntry(mib_object_t* object, u8t* oid, u8t len)
             object->varbind.value_type = BER_TYPE_INTEGER;
             switch (oid_el2) {
                 case 1:
-                    object->varbind.value.u_value = 2; // false
+                    object->varbind.value.u_value = 1; // true : 1; false : 0
                     break;
                 default:
                     return -1;
