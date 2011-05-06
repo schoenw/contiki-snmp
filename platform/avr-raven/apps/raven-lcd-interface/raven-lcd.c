@@ -71,6 +71,8 @@
 #include "httpd-cgi.h"
 #endif
 
+#include "sysman-arch.h"
+
 #include "raven-lcd.h"
 
 #include <string.h>
@@ -310,6 +312,8 @@ raven_gui_loop(process_event_t ev, process_data_t data)
                 /* Set temperature string in web server */
                 web_set_temp((char *)cmd.frame);
 #endif
+		/* Set temperature string in system manager */
+		sysman_set_temp((char *)cmd.frame);
                 break;
             case SEND_ADC2:
 #if WEBSERVER
@@ -447,6 +451,12 @@ raven_lcd_show_text(char *text) {
     uint8_t textlen=strlen(text)+1;
     if (textlen > MAX_CMD_LEN) textlen=MAX_CMD_LEN;
     send_frame(REPORT_TEXT_MSG, textlen, (uint8_t *) text);
+}
+
+void raven_get_temperature(char *text) {
+  uint8_t textlen=strlen(text)+1;
+  if (textlen > MAX_CMD_LEN) textlen=MAX_CMD_LEN;
+  send_frame(REPORT_, textlen, (uint8_t *) text);
 }
 
 #if WEBSERVER

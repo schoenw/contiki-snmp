@@ -343,7 +343,7 @@ main(void)
     sei();
 
     lcd_symbol_set(LCD_SYMBOL_RAVEN);
-    lcd_symbol_set(LCD_SYMBOL_IP);
+    //lcd_symbol_set(LCD_SYMBOL_IP);
 
     /* Start with main menu */
     //read_menu(0);

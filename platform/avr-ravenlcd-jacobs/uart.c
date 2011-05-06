@@ -451,6 +451,15 @@ uart_serial_rcv_frame(uint8_t wait_for_ack)
             beep();
             lcd_symbol_clr(LCD_SYMBOL_BELL);
             break;
+        case REPORT_TEMP:
+	  if(!strcmp((char *)payload, "C")){
+	    menu_read_temp((uint8_t *) 0);
+	  }
+	  else if(!strcmp((char *)payload, "F")){
+	    menu_read_temp((uint8_t *) 1);
+	  }
+	  menu_send_temp();
+	  break;
         case REPORT_WAKE:
             /* Indicates 1284 is awake*/
             break;

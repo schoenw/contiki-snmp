@@ -68,6 +68,7 @@
 #define REPORT_TEXT_MSG               (0xC2)
 #define REPORT_WAKE                   (0xC3)
 #define REPORT_PLAY_MUSIC             (0xC4)
+#define REPORT_TEMP                   (0xC5)
 /** \} */
 
 
