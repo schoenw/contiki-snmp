@@ -30,6 +30,7 @@
 #include "snmpd-conf.h"
 #include "md5.h"
 #include "aes.h"
+#include "sysman.h"
 
 #if ENABLE_SNMPv3
 

@@ -10,7 +10,7 @@
 #include "logging.h"
 #include "dispatcher.h"
 #include "snmpd.h"
-
+#include "sysman.h"
 #if CONTIKI_TARGET_AVR_RAVEN && ENABLE_PROGMEM
 #include "rf230bb.h"
 #include "raven-lcd.h"
@@ -207,14 +207,12 @@ void getPhyAddress(varbind_value_t* value) {
     value->p_value.len = 8;
 }
 
+extern uint8_t rf230_last_rssi;
 extern uint16_t RF230_sendpackets,RF230_receivepackets,RF230_sendfail,RF230_receivefail;
 //extern uint16_t RF230_sendBroadcastPkts, RF230_receiveBroadcastPkts;
-//extern uint32_t RF230_sendOctets, RF230_receiveOctets;
-//extern uint16_t RF230_sendfail, RF230_receivefail;
+extern uint32_t RF230_sendOctets, RF230_receiveOctets;
 #define RF230_sendBroadcastPkts 0
 #define RF230_receiveBroadcastPkts 0
-#define RF230_sendOctets 0
-#define RF230_receiveOctets 0
 #else
 #define RF230_sendpackets       0
 #define RF230_receivepackets    0
@@ -252,8 +250,8 @@ s8t getIfEntry(mib_object_t* object, u8t* oid, u8t len)
             object->varbind.value_type = BER_TYPE_OCTET_STRING;
             switch (oid_el2) {
                 case 1:
-                    object->varbind.value.p_value.ptr = (u8t*)"eth0";
-                    object->varbind.value.p_value.len = 4;
+                    object->varbind.value.p_value.ptr = (u8t*)getIfName();
+                    object->varbind.value.p_value.len = strlen(getIfName());
                     break;
                 default:
                     return -1;
@@ -345,7 +343,7 @@ s8t getIfEntry(mib_object_t* object, u8t* oid, u8t len)
             object->varbind.value_type = BER_TYPE_COUNTER;
             switch (oid_el2) {
                 case 1:
-                    object->varbind.value.u_value = RF230_receiveOctets;
+                    object->varbind.value.u_value = (uint32_t)getReceivedOctets();
                     break;
                 default:
                     return -1;
@@ -356,7 +354,7 @@ s8t getIfEntry(mib_object_t* object, u8t* oid, u8t len)
             object->varbind.value_type = BER_TYPE_COUNTER;
             switch (oid_el2) {
                 case 1:
-                    object->varbind.value.u_value = RF230_receivepackets - RF230_receiveBroadcastPkts;
+                    object->varbind.value.u_value = getReceivedPackets() - RF230_receiveBroadcastPkts;
                     break;
                 default:
                     return -1;
@@ -368,7 +366,7 @@ s8t getIfEntry(mib_object_t* object, u8t* oid, u8t len)
             object->varbind.value_type = BER_TYPE_COUNTER;
             switch (oid_el2) {
                 case 1:
-                    object->varbind.value.u_value = 0;
+                    object->varbind.value.u_value = getFailReceived();
                     break;
                 default:
                     return -1;
@@ -391,7 +389,7 @@ s8t getIfEntry(mib_object_t* object, u8t* oid, u8t len)
             object->varbind.value_type = BER_TYPE_COUNTER;
             switch (oid_el2) {
                 case 1:
-                    object->varbind.value.u_value = RF230_sendOctets;
+                    object->varbind.value.u_value = (uint32_t)getSentOctets();
                     break;
                 default:
                     return -1;
@@ -402,7 +400,7 @@ s8t getIfEntry(mib_object_t* object, u8t* oid, u8t len)
             object->varbind.value_type = BER_TYPE_COUNTER;
             switch (oid_el2) {
                 case 1:
-                    object->varbind.value.u_value = RF230_sendpackets - RF230_sendBroadcastPkts;
+                    object->varbind.value.u_value = getSentPackets() - RF230_sendBroadcastPkts;
                     break;
                 default:
                     return -1;
@@ -414,7 +412,7 @@ s8t getIfEntry(mib_object_t* object, u8t* oid, u8t len)
             object->varbind.value_type = BER_TYPE_COUNTER;
             switch (oid_el2) {
                 case 1:
-                    object->varbind.value.u_value = 0;
+                    object->varbind.value.u_value = getFailSent();
                     break;
                 default:
                     return -1;
@@ -466,8 +464,8 @@ s8t getIfXEntry(mib_object_t* object, u8t* oid, u8t len)
             object->varbind.value_type = BER_TYPE_OCTET_STRING;
             switch (oid_el2) {
                 case 1:
-                    object->varbind.value.p_value.ptr = (u8t*)"eth0";
-                    object->varbind.value.p_value.len = 4;
+                    object->varbind.value.p_value.ptr = (u8t*)getIfName();
+                    object->varbind.value.p_value.len = strlen(getIfName());
                     break;
                 default:
                     return -1;
@@ -588,7 +586,7 @@ ptr_t* getNextIfXEntry(mib_object_t* object, u8t* oid, u8t len)
 #define entPhySensorValueTimeStamp  7
 #define entPhySensorValueUpdateRate 8
 
-#define entPhySensorTableSize       1
+#define entPhySensorTableSize       2
 
 u8t entPhySensorTableColumns[] = {entPhySensorType, entPhySensorScale, entPhySensorPrecision, entPhySensorValue, entPhySensorOperStatus,
                                     entPhySensorUnitsDisplay, entPhySensorValueTimeStamp, entPhySensorValueUpdateRate};
@@ -629,6 +627,9 @@ s8t getEntPhySensorEntry(mib_object_t* object, u8t* oid, u8t len)
                 case 1:
                     object->varbind.value.i_value = 8; // celsius(8): temperature
                     break;
+                case 2:
+                    object->varbind.value.i_value = 1; // celsius(8): temperature
+                    break;
                 default:
                     return -1;
             }
@@ -637,6 +638,9 @@ s8t getEntPhySensorEntry(mib_object_t* object, u8t* oid, u8t len)
             object->varbind.value_type = BER_TYPE_INTEGER;
             switch (oid_el2) {
                 case 1:
+                    object->varbind.value.i_value = 9; // units	(9)
+                    break;
+                case 2:
                     object->varbind.value.i_value = 9; // units	(9)
                     break;
                 default:
@@ -649,6 +653,9 @@ s8t getEntPhySensorEntry(mib_object_t* object, u8t* oid, u8t len)
                 case 1:
                     object->varbind.value.i_value = 0;
                     break;
+                case 2:
+                    object->varbind.value.i_value = 0;
+                    break;
                 default:
                     return -1;
             }
@@ -658,7 +665,11 @@ s8t getEntPhySensorEntry(mib_object_t* object, u8t* oid, u8t len)
             object->varbind.value_type = BER_TYPE_INTEGER;
             switch (oid_el2) {
                 case 1:
-                    object->varbind.value.i_value = temperature;
+		    temperature = getTemperature("C");
+                    object->varbind.value.i_value = temperature;		    
+                    break;
+                case 2:
+		    object->varbind.value.i_value = rf230_last_rssi;
                     break;
                 default:
                     return -1;
@@ -669,11 +680,14 @@ s8t getEntPhySensorEntry(mib_object_t* object, u8t* oid, u8t len)
             object->varbind.value_type = BER_TYPE_INTEGER;
             switch (oid_el2) {
                 case 1:
-                    if (!tempLastUpdate) {
+                    if (temperature==-100) {
                         object->varbind.value.i_value = 2;
                     } else {
                         object->varbind.value.i_value = 1;
                     }
+                    break;
+                case 2:
+		    object->varbind.value.i_value = 1;
                     break;
                 default:
                     return -1;
@@ -687,6 +701,10 @@ s8t getEntPhySensorEntry(mib_object_t* object, u8t* oid, u8t len)
                     object->varbind.value.p_value.ptr = (u8t*)"celsius";
                     object->varbind.value.p_value.len = 7;
                     break;
+                case 2:
+                    object->varbind.value.p_value.ptr = (u8t*)"dBm";
+                    object->varbind.value.p_value.len = 3;
+                    break;
                 default:
                     return -1;
             }
@@ -696,7 +714,10 @@ s8t getEntPhySensorEntry(mib_object_t* object, u8t* oid, u8t len)
             object->varbind.value_type = BER_TYPE_TIME_TICKS;
             switch (oid_el2) {
                 case 1:
-                    object->varbind.value.u_value = tempLastUpdate;
+                    object->varbind.value.u_value = getLastTempUpdate();
+                    break;
+                case 2:
+                    object->varbind.value.u_value = getLastTempUpdate();
                     break;
                 default:
                     return -1;
@@ -707,6 +728,9 @@ s8t getEntPhySensorEntry(mib_object_t* object, u8t* oid, u8t len)
             object->varbind.value_type = BER_TYPE_UNSIGNED32;
             switch (oid_el2) {
                 case 1:
+                    object->varbind.value.u_value = 0;
+                    break;
+                case 2:
                     object->varbind.value.u_value = 0;
                     break;
                 default:
@@ -776,14 +800,19 @@ s8t mib_init()
     s32t defaultServiceValue = 78;
     s32t defaultSnmpEnableAuthenTraps = 2;
     s32t ifNumber = 1;
+    char* sysDesc = getSysDesc();
+    char* sysContact = getSysContact();
+    char* sysName = getSysName();
+    char* sysLocation = getSysLocation();
+    
 
     // system group
-    if (add_scalar(&oid_system_sysDesc, FLAG_ACCESS_READONLY, BER_TYPE_OCTET_STRING, CONTIKI_VERSION_STRING, 0, 0) == -1 ||
+    if (add_scalar(&oid_system_sysDesc, FLAG_ACCESS_READONLY, BER_TYPE_OCTET_STRING, sysDesc, 0, 0) == -1 ||
         add_scalar(&oid_system_sysObjectId, FLAG_ACCESS_READONLY, BER_TYPE_OID, &oid_jacobs_raven, 0, 0) == -1 ||
         add_scalar(&oid_system_sysUpTime, FLAG_ACCESS_READONLY, BER_TYPE_TIME_TICKS, 0, &getTimeTicks, 0) == -1 ||
-        add_scalar(&oid_system_sysContact, 0, BER_TYPE_OCTET_STRING, "<admin@eecs.jacobs-university.de>", 0, 0) == -1 ||
-        add_scalar(&oid_system_sysName, 0, BER_TYPE_OCTET_STRING, "jacobs-snmp-test", 0, 0) == -1 ||
-        add_scalar(&oid_system_sysLocation, 0, BER_TYPE_OCTET_STRING, "Jacobs University Test Network", 0, 0) == -1 ||
+        add_scalar(&oid_system_sysContact, 0, BER_TYPE_OCTET_STRING, sysContact, 0, 0) == -1 ||
+        add_scalar(&oid_system_sysName, 0, BER_TYPE_OCTET_STRING, sysName, 0, 0) == -1 ||
+        add_scalar(&oid_system_sysLocation, 0, BER_TYPE_OCTET_STRING, sysLocation, 0, 0) == -1 ||
         add_scalar(&oid_system_sysServices, FLAG_ACCESS_READONLY, BER_TYPE_INTEGER, &defaultServiceValue, 0, 0) == -1 ||
         add_scalar(&oid_system_sysORLastChange, FLAG_ACCESS_READONLY, BER_TYPE_TIME_TICKS, 0, 0, 0) == -1) {
         return -1;

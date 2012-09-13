@@ -456,7 +456,7 @@ raven_lcd_show_text(char *text) {
 void raven_get_temperature(char *text) {
   uint8_t textlen=strlen(text)+1;
   if (textlen > MAX_CMD_LEN) textlen=MAX_CMD_LEN;
-  send_frame(REPORT_, textlen, (uint8_t *) text);
+  send_frame(REPORT_TEMP, textlen, (uint8_t *) text);
 }
 
 #if WEBSERVER

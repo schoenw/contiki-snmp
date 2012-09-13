@@ -65,7 +65,11 @@ else # UIP_CONF_IPV6
           uip-over-mesh.c dhcpc.c #rawpacket-udp.c
   NET   += $(UIP) uaodv.c uaodv-rt.c
 endif # UIP_CONF_IPV6
-
+#added by VP
+ifdef EDIT_CONFIG
+  CFLAGS += -DEDIT_CONFIG=1
+endif
+#VP
 CTK     = ctk.c
 CTKVNC  = $(CTK) ctk-vncserver.c libconio.c vnc-server.c vnc-out.c ctk-vncfont.c
 
@@ -76,7 +80,7 @@ else
 endif
 
 CONTIKI_SOURCEFILES += $(CONTIKIFILES)
-
+#CONTIKI_SOURCEFILES += sysman.c sysman-arch.c #simplexml.c
 CONTIKIDIRS += ${addprefix $(CONTIKI)/core/,dev lib net net/mac net/rime \
                  net/rpl sys cfs ctk lib/ctk loader . }
 

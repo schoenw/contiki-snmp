@@ -78,6 +78,8 @@ int uip_maddr_exists(uip_ipaddr_t addr);
  */
 int udp_mcast_close(struct uip_udp_conn *conn);
 
+uint32_t mcast_packets;
+
 #ifdef DEBUG
 int my_maddr_all();
 #endif

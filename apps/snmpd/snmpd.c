@@ -47,7 +47,7 @@ extern unsigned long seconds;
 clock_time_t systemStartTime;
 #endif
 
-u32t getSysUpTime()
+/*u32t getSysUpTime()
 {
     #if CONTIKI_TARGET_AVR_RAVEN
         return clock_seconds();
@@ -55,7 +55,7 @@ u32t getSysUpTime()
     #else
         return (clock_time() - systemStartTime)/ 10;
     #endif
-}
+}*/
 
 #if CHECK_STACK_SIZE
 int max = 0;
@@ -68,6 +68,7 @@ u32t* marker;
  */
 static void udp_handler(process_event_t ev, process_data_t data)
 {   
+    snmp_packets++;
     u8t response[MAX_BUF_SIZE];
     u16t resp_len;
     #if CHECK_STACK_SIZE
@@ -142,6 +143,8 @@ static void udp_handler(process_event_t ev, process_data_t data)
  */
 PROCESS_THREAD(snmpd_process, ev, data) {
 	PROCESS_BEGIN();
+
+	snmp_packets = 0;
 
         #ifndef CONTIKI_TARGET_AVR_RAVEN
         systemStartTime = clock_time();

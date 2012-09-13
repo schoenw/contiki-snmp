@@ -431,7 +431,7 @@ uart_serial_rcv_frame(uint8_t wait_for_ack)
 
             /* Beep on successful ping response. */
             lcd_symbol_set(LCD_SYMBOL_BELL);
-            beep();
+            //beep();
             lcd_symbol_clr(LCD_SYMBOL_BELL);
             break;
         case REPORT_TEXT_MSG:
@@ -448,17 +448,21 @@ uart_serial_rcv_frame(uint8_t wait_for_ack)
 	    break;
         case REPORT_PING_BEEP:
             lcd_symbol_set(LCD_SYMBOL_BELL);
-            beep();
+            //beep();
             lcd_symbol_clr(LCD_SYMBOL_BELL);
             break;
         case REPORT_TEMP:
-	  if(!strcmp((char *)payload, "C")){
+	  /*
+	    if(!strcmp((char *)payload, "C")){
 	    menu_read_temp((uint8_t *) 0);
 	  }
 	  else if(!strcmp((char *)payload, "F")){
 	    menu_read_temp((uint8_t *) 1);
 	  }
+	  */
+	  menu_read_temp((uint8_t *) 0);
 	  menu_send_temp();
+	  menu_display_temp();
 	  break;
         case REPORT_WAKE:
             /* Indicates 1284 is awake*/

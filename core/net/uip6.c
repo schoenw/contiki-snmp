@@ -268,6 +268,8 @@ struct uip_udp_conn uip_udp_conns[UIP_UDP_CONNS];
 struct uip_icmp6_conn uip_icmp6_conns;
 #endif /*UIP_CONF_ICMP6*/
 
+//mcast_packets = 0;
+
 /*---------------------------------------------------------------------------*/
 /* Functions                                                                 */
 /*---------------------------------------------------------------------------*/
@@ -1423,6 +1425,7 @@ uip_process(u8_t flag)
 	uip_maddr_exists(uip_udp_conn->ripaddr)) &&
         UIP_UDP_BUF->destport == uip_udp_conn->lport){
       PRINTF("udp: matching connection found\n");
+      mcast_packets++;
       goto udp_found;
     }
   }

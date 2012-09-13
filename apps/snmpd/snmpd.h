@@ -36,11 +36,12 @@
 /** \brief port listened by the SNMP agent */
 // port 161 seems to be blocked on our firewall
 #define LISTEN_PORT 1610
+uint32_t snmp_packets;
 
 /** \brief SNMP agent process. */
 PROCESS_NAME(snmpd_process);
 
 /** \brief Time in seconds since the system started. */
-u32t getSysUpTime();
+//u32t getSysUpTime();
 
 #endif /* __SNMPD_H__ */

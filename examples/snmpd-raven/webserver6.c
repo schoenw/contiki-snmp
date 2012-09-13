@@ -33,7 +33,43 @@
 
 #include "webserver-nogui.h"
 #include "snmpd.h"
+#include "raven-lcd.h"
+#include "contiki.h"
+#include "contiki-lib.h"
+#include "contiki-net.h"
+#include "sysman.h"
+#include "net/uip-mcast6.h"
+#include "mac.h"
+#include "mdns.h"
+#include <stdio.h>
+
+PROCESS(lcd_process, "LCD Updater");
 
 /*---------------------------------------------------------------------------*/
-AUTOSTART_PROCESSES(&webserver_nogui_process, &snmpd_process);
+AUTOSTART_PROCESSES(&webserver_nogui_process, &snmpd_process, &mdns_querier_process, &mdns_processor_process, &lcd_process);
 /*---------------------------------------------------------------------------*/
+
+PROCESS_THREAD(lcd_process, ev, data) {
+  static struct etimer et;
+  char text[50];
+
+  PROCESS_BEGIN();
+
+  etimer_set(&et, CLOCK_SECOND * 10);
+  raven_lcd_show_text("  Huawei Mote 2");
+  PROCESS_WAIT_UNTIL(etimer_expired(&et));
+
+  getTemperature("C");
+
+  etimer_set(&et, CLOCK_SECOND * 1);
+  while(1){
+    PROCESS_YIELD();
+    if(etimer_expired(&et)){
+      sprintf(text, "S %d", snmp_packets);
+      raven_lcd_show_text(text);
+      etimer_restart(&et);
+    }
+  }
+  
+  PROCESS_END();
+}
