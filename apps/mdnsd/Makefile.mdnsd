@@ -1,1 +1,0 @@
-mdnsd_src = mdnsResponder.c mdnsQuerier.c mdnsProcessor.c
