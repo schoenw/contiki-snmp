@@ -1,0 +1,9 @@
+all: snmp-server
+
+TARGET=minimal-net
+PROJECT=snmp-server
+UIP_CONF_IPV6=1
+APPS=snmpd 
+CONTIKI=../..
+
+include $(CONTIKI)/Makefile.include
