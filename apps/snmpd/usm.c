@@ -30,7 +30,17 @@
 #include "snmpd-conf.h"
 #include "md5.h"
 #include "aes.h"
+#if CONTIKI_TARGET_AVR_RAVEN 
 #include "sysman.h"
+#else
+int getSysUpTime() {
+  return clock_seconds();
+}
+#endif
+
+#if !CONTIKI_TARGET_AVR_RAVEN 
+#define getSysUptime() clock_time()
+#endif
 
 #if ENABLE_SNMPv3
 
