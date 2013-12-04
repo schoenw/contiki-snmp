@@ -1,36 +1,57 @@
-The Contiki Operating System
+Contiki SNMP
+============
 
-Contiki is an open source, highly portable, multi-tasking operating
-system for memory-constrained networked embedded systems written by
-Adam Dunkels at the Networked Embedded Systems group at the Swedish
-Institute of Computer Science.
+IEEE 802.15.4 is a standard which specifies the physical layer and
+media access control for low-rate wireless personal area networks
+providing node-to-node frame delivery between devices within reachable
+distance. The standard is targeted at low-cost, low-speed and
+low-power devices.
 
-Contiki is designed for embedded systems with small amounts of
-memory. A typical Contiki configuration is 2 kilobytes of RAM and 40
-kilobytes of ROM. Contiki consists of an event-driven kernel on top of
-which application programs are dynamically loaded and unloaded at
-runtime. Contiki processes use light-weight protothreads that provide
-a linear, thread-like programming style on top of the event-driven
-kernel. Contiki also supports per-process optional preemptive
-multi-threading, interprocess communication using message passing
-through events, as well as an optional GUI subsystem with either
-direct graphic support for locally connected terminals or networked
-virtual display with VNC or over Telnet.
+Simple Network Management Protocol (SNMP) is a widely deployed
+application protocol for network management and data retrieval. Its
+implementation can be very lightweight and may fit
+resource-constrained devices very well.
 
-Contiki contains two communication stacks: uIP and Rime. uIP is a
-small RFC-compliant TCP/IP stack that makes it possible for Contiki to
-communicate over the Internet. Rime is a lightweight communication
-stack designed for low-power radios. Rime provides a wide range of
-communication primitives, from best-effort local area broadcast, to
-reliable multi-hop bulk data flooding.
+The focus of this project is implementation and evaluation of the SNMP
+protocol for devices supporting IEEE 802.15.4 Radios and the Contiki
+Embedded Operating System. The targeted platform is AVR Raven.
 
-Contiki runs on a variety of platform ranging from embedded
-microcontrollers such as the MSP430 and the AVR to old
-homecomputers. Code footprint is on the order of kilobytes and memory
-usage can be configured to be as low as tens of bytes.
+The current implementation supports the GET, GETNEXT and SET
+operations, the SNMPv1 and SNMPv3 message processing models and the
+User-based Security Model with the HMAC-MD5-96 authentication and
+CFB128-AES-128 symmetric encryption protocols.
 
-Contiki is written in the C programming language and is freely
-available as open source under a BSD-style license. More information
-about Contiki can be found at the Contiki home page:
+Getting Started
+===============
 
-http://www.sics.se/contiki/
+The Contiki SNMP agent has been tested working with the Contiki 2.5
+version. As such, it is provided here already integrated into a
+working Contiki 2.5 source tree.
+
+You can find instructions on how to get started with Contiki SNMP at:
+
+https://github.com/sehgalanuj/contiki-snmp/wiki
+
+Source Structure
+================
+
+* apps/snmpd:
+
+    This folder contains the SNMP agent implementation. Most purpose
+    of most files in here are self-explanatory.
+
+    All implemented MIB modules are in the mib-init-*.c files.
+
+* examples/snmpd-raven:
+
+    This example combines an SNMP agent and webserver implementation
+    together for the AVR Raven platform. The implemented MIB modules
+    can be found in the mib-init-raven.c file located in apps/snmpd.
+
+* examples/snmpd-minimal-net:
+
+    This example provides a virtual node that runs on the minimal-net
+    platform of Contiki. Without access to any specialized mote
+    hardware, this platform can be used to test the SNMP agent on your
+    native machine. The MIB implementation can be found in mib-init.c
+    file located in apps/snmpd.
