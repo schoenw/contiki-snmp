@@ -1,3 +1,0 @@
-#!/bin/bash
-
-./test.sh | ./driveGnuPlotStreams.pl 3 1 10 0 100 800x600+0+0 'Latency (ms)' 'Temperature (Celsius)' 'RSSI (dBm)' 0 0 0

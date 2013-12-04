@@ -40,13 +40,12 @@
 #include "sysman.h"
 #include "net/uip-mcast6.h"
 #include "mac.h"
-#include "mdns.h"
 #include <stdio.h>
 
 PROCESS(lcd_process, "LCD Updater");
 
 /*---------------------------------------------------------------------------*/
-AUTOSTART_PROCESSES(&webserver_nogui_process, &snmpd_process, &mdns_querier_process, &mdns_processor_process, &lcd_process);
+AUTOSTART_PROCESSES(&webserver_nogui_process, &snmpd_process, &lcd_process);
 /*---------------------------------------------------------------------------*/
 
 PROCESS_THREAD(lcd_process, ev, data) {
@@ -56,7 +55,7 @@ PROCESS_THREAD(lcd_process, ev, data) {
   PROCESS_BEGIN();
 
   etimer_set(&et, CLOCK_SECOND * 10);
-  raven_lcd_show_text("  Huawei Mote 2");
+  raven_lcd_show_text("SNMP Test Mote");
   PROCESS_WAIT_UNTIL(etimer_expired(&et));
 
   getTemperature("C");
